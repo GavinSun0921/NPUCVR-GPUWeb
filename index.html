@@ -241,10 +241,9 @@ function renderLayout() {
                 // 如果是 disabled，直接显示停用原因
                 const reason = meta.notice || "暂无停用说明";
                 initContentHtml = `
-                    <div style="padding: 50px 20px; text-align: center; color: #999; background-color: #fafafa;">
-                        <div style="font-size: 24px; margin-bottom: 10px; opacity: 0.5;">🚫</div>
-                        <div style="font-size: 16px; font-weight: bold; color: #777; margin-bottom: 8px;">此节点已停用</div>
-                        <div style="font-size: 13px; color: #aaa;">原因: ${reason}</div>
+                    <div style="padding: 20px 10px; text-align: center; color: #999; background-color: #fafafa;">
+                        <div style="font-size: 24px; font-weight: bold; color: #777; margin-bottom: 8px;">🚫 此节点已停用</div>
+                        <div style="font-size: 14px; color: #999;">原因: ${reason}</div>
                     </div>
                 `;
             } else {

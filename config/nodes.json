@@ -2,12 +2,12 @@
     "Server1": {
         "status": "disabled",
         "notice": "内存故障，服务器不可用，已下线",
-        "order": 1
+        "order": 51
     },
     "Server2": {
         "status": "maintenance",
         "notice": "未知 ssh 连接问题",
-        "order": 2
+        "order": 52
     },
     "Server3": {
         "status": "maintenance",
@@ -17,12 +17,17 @@
     "Server4": {
         "status": "disabled",
         "notice": "网络故障，服务器不可用，已下线",
-        "order": 4
+        "order": 54
     },
     "Server5": {
         "status": "available",
         "notice": "",
-        "order": 5
+        "order": 55
+    },
+    "Server9": {
+        "status": "available",
+        "notice": "",
+        "order": 59
     },
     "Server6": {
         "status": "available",
@@ -38,11 +43,6 @@
         "status": "available",
         "notice": "",
         "order": 8
-    },
-    "Server9": {
-        "status": "available",
-        "notice": "",
-        "order": 9
     },
     "Server10": {
         "status": "available",
