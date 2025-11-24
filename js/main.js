@@ -12,7 +12,7 @@ async function refreshData() {
         } catch (e) {
             console.warn(nodeName, e);
             document.getElementById(`content-${nodeName}`).innerHTML =
-                `<div class="error-msg">节点离线</div>`;
+                `<div class="error-msg">暂无数据或节点离线，长时间异常请联系管理员</div>`;
         }
     }
 }
