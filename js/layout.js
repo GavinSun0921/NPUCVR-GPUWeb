@@ -19,6 +19,7 @@ function renderLayout() {
         let initContentHtml = isDisabled
             ? `<div style="padding: 20px 10px; text-align: center; color: #999; background-color: #fafafa;">
                 <div style="font-size: 24px; font-weight: bold; color: #777;">🚫 此节点已停用</div>
+                <div style="padding: 5px;"></div>
                 <div style="font-size: 14px;">原因: ${meta.notice || "暂无说明"}</div>
                </div>`
             : `<div style="padding:20px; text-align:center; color:#999;">Connecting...</div>`;

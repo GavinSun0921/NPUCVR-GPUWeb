@@ -1,6 +1,6 @@
 {
     "title": "NPU CVR Lab - GPU Monitor",
-    "announcement": "当前正在维护中\n系统试运行中，服务器使用请阅读语雀使用手册：https://cvr-npu.yuque.com/npu-cvr/gpuserver/xvgskyheqz5vbczp。\n注意：小于24G显存的GPU节点已被排序至后方。\n有问题请联系管理员，邮箱：gavinsun0921@foxmail.com",
+    "announcement": "系统试运行中，服务器使用请阅读语雀使用手册：https://cvr-npu.yuque.com/npu-cvr/gpuserver/xvgskyheqz5vbczp。\n注意：小于24G显存的GPU节点已被排序至后方。\n有问题请联系管理员，邮箱：gavinsun0921@foxmail.com",
     "refresh_interval": 30,
     "gpu_name_map": {
         "Tesla V100-PCIE-32GB": "Tesla V100 (32G)",

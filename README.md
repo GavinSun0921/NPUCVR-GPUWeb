@@ -19,7 +19,7 @@
 │
 ├── js/                        # 前端逻辑模块（已按功能拆分）
 │   ├── config.js              # 加载配置（global.json / nodes.json）
-│   ├── layout.js              # 负责 DOM结构渲染 (renderLayout)
+│   ├── layout.js              # 负责 DOM 结构渲染 (renderLayout)
 │   ├── updater.js             # 动态内容更新（GPU数据/进度条渲染）
 │   └── main.js                # 应用入口，调度 refresh/interval/init逻辑
 │
