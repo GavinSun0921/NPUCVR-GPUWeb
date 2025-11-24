@@ -1,0 +1,12 @@
+{
+    "Server10": {
+        "status": "available",
+        "notice": "注意：\n1. 此节点正在跑长期训练任务。\n2. 请勿随意重启 docker 容器。\n3. 如有问题联系管理员。",
+        "order": 1
+    },
+    "Server19": {
+        "status": "maintenance",
+        "notice": "GPU 3 故障维修中...",
+        "order": 2
+    }
+}

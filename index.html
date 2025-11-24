@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPU Cluster Monitor</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-main: #333;
+            --text-sub: #666;
+            --border-color: #e1e4e8;
+            --status-green: #28a745;
+            --status-yellow: #ffc107;
+            --status-orange: #fd7e14;
+            --status-red: #dc3545;
+            --status-gray: #6c757d;
+        }
+
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; color: var(--text-main); }
+        
+        /* --- 头部样式 (含Logo) --- */
+        .header { margin-bottom: 20px; text-align: center; }
+        .site-logo { height: 60px; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; } /* Logo 样式 */
+        .header h1 { margin: 0 0 10px 0; font-size: 24px; }
+        .announcement { background-color: #e2e3e5; color: #383d41; padding: 10px; border-radius: 4px; display: inline-block; font-size: 14px; max-width: 800px; width: 100%; }
+
+        /* 节点卡片容器 */
+        .node-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
+        
+        /* 单个节点卡片 */
+        .node-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 1200px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- 卡片头部与公告 --- */
+        .card-header {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .node-title { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        .status-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+        
+        .node-meta { font-size: 13px; color: var(--text-sub); display: flex; align-items: center; gap: 15px; }
+
+        /* 公告切换按钮 */
+        .notice-toggle-btn {
+            background: none;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #666;
+            display: flex; align-items: center; gap: 4px;
+            transition: all 0.2s;
+        }
+        .notice-toggle-btn:hover { background-color: #f0f0f0; color: #333; }
+        .notice-toggle-btn.has-notice { color: #d63384; border-color: #f8d7da; background-color: #f8d7da; }
+        
+        /* 折叠公告区域 */
+        .notice-drawer {
+            max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
+            background-color: #fff3cd; border-bottom: 0px solid #ffeeba;
+        }
+        .notice-drawer.open { max-height: 300px; border-bottom-width: 1px; }
+        .notice-content { padding: 15px; font-size: 13px; color: #856404; line-height: 1.6; white-space: pre-wrap; }
+
+        /* --- 系统资源栏 --- */
+        .system-resources {
+            padding: 10px 15px;
+            display: flex; gap: 20px;
+            background: #fff; border-bottom: 1px solid #eee;
+        }
+        .res-item { flex: 1; display: flex; align-items: center; gap: 8px; font-size: 13px; }
+        .mini-progress { flex: 1; height: 6px; background: #e9ecef; border-radius: 3px; overflow: hidden; }
+        .mini-bar { height: 100%; border-radius: 3px; }
+
+        /* --- GPU 表格 (修改版: ID独立) --- */
+        .gpu-table-container { padding: 0; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th { background: #f1f3f5; padding: 10px 15px; font-weight: 600; color: #495057; }
+        td { padding: 8px 15px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+
+        /* ID 列专用样式 */
+        .col-id { width: 50px; text-align: center; color: #999; font-weight: bold; }
+        .col-name { width: 200px; } /* 固定名称列宽度 */
+
+        /* 进度条 */
+        .progress-wrapper { display: flex; align-items: center; gap: 8px; width: 100%; }
+        .progress-bg { flex: 1; height: 16px; background: #e9ecef; border-radius: 4px; overflow: hidden; position: relative; }
+        .progress-bar { height: 100%; transition: width 0.5s ease; }
+        .progress-text { font-size: 12px; min-width: 35px; text-align: right; }
+        
+        /* 进程列表 */
+        .process-list { font-size: 12px; color: #666; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .process-tag { display: inline-block; background: #f0f0f0; padding: 2px 5px; border-radius: 3px; margin-right: 4px; }
+
+        /* 状态颜色 */
+        .status-available { background-color: var(--status-green); }
+        .status-maintenance { background-color: var(--status-yellow); }
+        .status-disabled { background-color: var(--status-gray); }
+
+        /* 阈值颜色 */
+        .bg-green { background-color: var(--status-green); }
+        .bg-yellow { background-color: var(--status-yellow); }
+        .bg-orange { background-color: var(--status-orange); }
+        .bg-red { background-color: var(--status-red); }
+        
+        .error-msg { color: var(--status-red); padding: 15px; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <img src="logo.png" alt="Lab Logo" class="site-logo" onerror="this.style.display='none'">
+    
+    <h1 id="global-title">Loading...</h1>
+    <div id="global-announcement" class="announcement" style="display:none;"></div>
+    <div style="margin-top: 5px; font-size: 12px; color: #999;">
+        更新时间: <span id="last-updated">-</span> (每 <span id="refresh-rate">30</span>s 刷新)
+    </div>
+</div>
+
+<div id="node-container" class="node-container">
+    </div>
+
+<script>
+    let config = { refresh_interval: 30 };
+    let nodesConfig = {};
+
+    function getColorClass(percent) {
+        if (percent > 90) return 'bg-red';
+        if (percent > 60) return 'bg-orange';
+        if (percent >= 30) return 'bg-yellow';
+        return 'bg-green';
+    }
+
+    async function init() {
+        try {
+            const globalRes = await fetch('config/global.json?t=' + Date.now());
+            config = await globalRes.json();
+            
+            document.getElementById('global-title').textContent = config.title;
+            if (config.announcement) {
+                const annEl = document.getElementById('global-announcement');
+                annEl.textContent = config.announcement;
+                annEl.style.display = 'inline-block';
+            }
+            document.getElementById('refresh-rate').textContent = config.refresh_interval;
+
+            const nodesRes = await fetch('config/nodes.json?t=' + Date.now());
+            nodesConfig = await nodesRes.json();
+
+            renderLayout();
+            refreshData();
+            setInterval(refreshData, config.refresh_interval * 1000);
+
+        } catch (e) {
+            console.error("Init failed:", e);
+            document.getElementById('global-title').textContent = "系统配置加载失败";
+        }
+    }
+
+    function renderLayout() {
+        const container = document.getElementById('node-container');
+        container.innerHTML = '';
+
+        const sortedNodes = Object.entries(nodesConfig)
+            .sort(([,a], [,b]) => a.order - b.order);
+
+        sortedNodes.forEach(([nodeName, meta]) => {
+            const card = document.createElement('div');
+            card.className = 'node-card';
+            card.id = `card-${nodeName}`;
+            
+            const statusColorClass = `status-${meta.status}`;
+            
+            // 公告按钮逻辑
+            const hasNotice = meta.notice && meta.notice.trim() !== "";
+            const noticeBtnStyle = hasNotice ? 'has-notice' : '';
+            const btnText = hasNotice ? '📢 查看公告' : '无公告';
+            const btnDisabled = hasNotice ? '' : 'disabled style="opacity:0.5; cursor:default"';
+            
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="node-title">
+                        <span class="status-dot ${statusColorClass}"></span>
+                        ${nodeName}
+                    </div>
+                    <div class="node-meta">
+                        <button class="notice-toggle-btn ${noticeBtnStyle}" ${btnDisabled} onclick="toggleNotice('${nodeName}')">
+                            ${btnText}
+                        </button>
+                        <span id="time-${nodeName}">Waiting...</span>
+                    </div>
+                </div>
+                
+                <div id="notice-drawer-${nodeName}" class="notice-drawer">
+                    <div class="notice-content">${meta.notice || ''}</div>
+                </div>
+
+                <div id="content-${nodeName}">
+                    <div style="padding:20px; text-align:center; color:#999;">Connecting...</div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function toggleNotice(nodeName) {
+        const drawer = document.getElementById(`notice-drawer-${nodeName}`);
+        if (drawer) drawer.classList.toggle('open');
+    }
+
+    async function refreshData() {
+        document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+
+        for (const [nodeName, meta] of Object.entries(nodesConfig)) {
+            if (meta.status === 'disabled') continue;
+
+            try {
+                const res = await fetch(`data/${nodeName}.json?t=` + Date.now());
+                if (!res.ok) throw new Error("Data not found");
+                const data = await res.json();
+                updateNodeCard(nodeName, data);
+            } catch (e) {
+                console.warn(`Fetch error for ${nodeName}:`, e);
+                const contentDiv = document.getElementById(`content-${nodeName}`);
+                if(contentDiv) {
+                    contentDiv.innerHTML = `<div class="error-msg">暂无数据或节点离线 (Last check: ${new Date().toLocaleTimeString()})</div>`;
+                }
+            }
+        }
+    }
+
+    function updateNodeCard(nodeName, data) {
+        const timeSpan = document.getElementById(`time-${nodeName}`);
+        const contentDiv = document.getElementById(`content-${nodeName}`);
+        
+        if (timeSpan) timeSpan.textContent = data.timestamp;
+        
+        const sys = data.system || {cpu_percent:0, ram_percent:0, ssd_percent:0};
+        
+        let html = `
+            <div class="system-resources">
+                <div class="res-item">
+                    <span>CPU: ${sys.cpu_percent}%</span>
+                    <div class="mini-progress"><div class="mini-bar ${getColorClass(sys.cpu_percent)}" style="width:${sys.cpu_percent}%"></div></div>
+                </div>
+                <div class="res-item">
+                    <span>RAM: ${sys.ram_percent}%</span>
+                    <div class="mini-progress"><div class="mini-bar ${getColorClass(sys.ram_percent)}" style="width:${sys.ram_percent}%"></div></div>
+                </div>
+                <div class="res-item">
+                    <span>SSD: ${sys.ssd_percent}%</span>
+                    <div class="mini-progress"><div class="mini-bar ${getColorClass(sys.ssd_percent)}" style="width:${sys.ssd_percent}%"></div></div>
+                </div>
+                <div class="res-item" style="justify-content: flex-end; color: #888;">
+                    Uptime: -- 
+                </div>
+            </div>
+            
+            <div class="gpu-table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="col-id">ID</th> <th class="col-name">Name</th>
+                            <th style="width: 25%">VRAM Usage</th>
+                            <th style="width: 20%">Util %</th>
+                            <th>Processes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        if (data.gpus && data.gpus.length > 0) {
+            data.gpus.forEach(gpu => {
+                const vramColor = getColorClass(gpu.vram_percent);
+                const utilColor = getColorClass(gpu.util_percent);
+                
+                let processHtml = '<span style="color:#aaa">-</span>';
+                if (gpu.processes && gpu.processes.length > 0) {
+                    processHtml = gpu.processes.map(p => 
+                        `<span class="process-tag" title="PID: ${p.pid}">${p.user}(${p.ram_percent}%)</span>`
+                    ).join('');
+                }
+
+                // 处理显卡名称，去掉 "NVIDIA " 前缀让显示更简洁
+                const displayName = gpu.name.replace("NVIDIA ", "");
+
+                html += `
+                    <tr>
+                        <td class="col-id">${gpu.id}</td> <td class="col-name">
+                            <div style="font-weight:bold;">${displayName}</div>
+                        </td>
+                        <td>
+                            <div class="progress-wrapper">
+                                <div class="progress-bg">
+                                    <div class="progress-bar ${vramColor}" style="width: ${gpu.vram_percent}%"></div>
+                                </div>
+                                <div class="progress-text">
+                                    ${gpu.vram_used_mb}MB <span style="color:#999">/ ${gpu.vram_percent}%</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                             <div class="progress-wrapper">
+                                <div class="progress-bg">
+                                    <div class="progress-bar ${utilColor}" style="width: ${gpu.util_percent}%"></div>
+                                </div>
+                                <div class="progress-text">${gpu.util_percent}%</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="process-list">${processHtml}</div>
+                        </td>
+                    </tr>
+                `;
+            });
+        } else {
+            html += `<tr><td colspan="5" style="text-align:center; padding:20px;">无 GPU 数据</td></tr>`;
+        }
+
+        html += `</tbody></table></div>`;
+        contentDiv.innerHTML = html;
+    }
+
+    init();
+</script>
+
+</body>
+</html>

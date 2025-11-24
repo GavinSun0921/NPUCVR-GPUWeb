@@ -1,0 +1,91 @@
+{
+    "node": "Server10",
+    "timestamp": "2025-11-24 15:38:40",
+    "system": {
+        "cpu_percent": 0,
+        "ram_percent": 4,
+        "ssd_percent": 60
+    },
+    "gpus": [
+        {
+            "id": 0,
+            "uuid": "GPU-374d0cbc-1562-2916-1b2c-8c843c89a9cb",
+            "name": "NVIDIA GeForce RTX 3090",
+            "vram_total_mb": 24576,
+            "vram_used_mb": 15,
+            "vram_percent": 0,
+            "util_percent": 0,
+            "processes": []
+        },
+        {
+            "id": 1,
+            "uuid": "GPU-17d6c4e7-0dd2-fe34-0800-24d33559760f",
+            "name": "NVIDIA GeForce RTX 3090",
+            "vram_total_mb": 24576,
+            "vram_used_mb": 15,
+            "vram_percent": 0,
+            "util_percent": 0,
+            "processes": []
+        },
+        {
+            "id": 2,
+            "uuid": "GPU-b83b7a6d-953e-f59a-f89c-7ecc617c0d5e",
+            "name": "NVIDIA GeForce RTX 3090",
+            "vram_total_mb": 24576,
+            "vram_used_mb": 15,
+            "vram_percent": 0,
+            "util_percent": 0,
+            "processes": []
+        },
+        {
+            "id": 3,
+            "uuid": "GPU-458deb78-c85b-2e5d-7c6c-98ac85f579e5",
+            "name": "NVIDIA GeForce RTX 3090",
+            "vram_total_mb": 24576,
+            "vram_used_mb": 15,
+            "vram_percent": 0,
+            "util_percent": 0,
+            "processes": []
+        },
+        {
+            "id": 4,
+            "uuid": "GPU-25dc9a0d-9d97-e56c-13cd-587fb7567b55",
+            "name": "NVIDIA GeForce RTX 3090",
+            "vram_total_mb": 24576,
+            "vram_used_mb": 15,
+            "vram_percent": 0,
+            "util_percent": 0,
+            "processes": []
+        },
+        {
+            "id": 5,
+            "uuid": "GPU-9838bd17-b39f-22dc-7bb1-59a243d1726c",
+            "name": "NVIDIA GeForce RTX 3090",
+            "vram_total_mb": 24576,
+            "vram_used_mb": 15,
+            "vram_percent": 0,
+            "util_percent": 0,
+            "processes": []
+        },
+        {
+            "id": 6,
+            "uuid": "GPU-15f35b6d-65cc-c89d-c8dd-0da0580a20ba",
+            "name": "NVIDIA GeForce RTX 3090",
+            "vram_total_mb": 24576,
+            "vram_used_mb": 15,
+            "vram_percent": 0,
+            "util_percent": 0,
+            "processes": []
+        },
+        {
+            "id": 7,
+            "uuid": "GPU-e85779b2-214e-0b2d-fe6a-17c896bfa0fd",
+            "name": "NVIDIA GeForce RTX 3090",
+            "vram_total_mb": 24576,
+            "vram_used_mb": 15,
+            "vram_percent": 0,
+            "util_percent": 0,
+            "processes": []
+        }
+    ]
+}
