@@ -210,7 +210,7 @@
         }
     }
 
-    function renderLayout() {
+function renderLayout() {
         const container = document.getElementById('node-container');
         container.innerHTML = '';
 
@@ -223,12 +223,40 @@
             card.id = `card-${nodeName}`;
             
             const statusColorClass = `status-${meta.status}`;
+            const isDisabled = meta.status === 'disabled';
             
+            // --- 逻辑变更开始 ---
+            
+            // 1. 公告栏逻辑：如果是 disabled 状态，我们不在顶部显示黄色公告栏
             let noticeHtml = '';
-            if (meta.notice && meta.notice.trim() !== "") {
+            // 只有当节点 "非 disabled" 且 "有公告" 时，才显示黄色公告栏
+            if (!isDisabled && meta.notice && meta.notice.trim() !== "") {
                 noticeHtml = `<div class="node-notice-box">${meta.notice}</div>`;
             }
             
+            // 2. 内容区初始状态逻辑
+            let initContentHtml = '';
+            
+            if (isDisabled) {
+                // 如果是 disabled，直接显示停用原因
+                const reason = meta.notice || "暂无停用说明";
+                initContentHtml = `
+                    <div style="padding: 50px 20px; text-align: center; color: #999; background-color: #fafafa;">
+                        <div style="font-size: 24px; margin-bottom: 10px; opacity: 0.5;">🚫</div>
+                        <div style="font-size: 16px; font-weight: bold; color: #777; margin-bottom: 8px;">此节点已停用</div>
+                        <div style="font-size: 13px; color: #aaa;">原因: ${reason}</div>
+                    </div>
+                `;
+            } else {
+                // 如果是正常节点，显示 Connecting...
+                initContentHtml = `<div style="padding:20px; text-align:center; color:#999;">Connecting...</div>`;
+            }
+            
+            // 3. 右上角状态文字
+            const statusText = isDisabled ? 'Disabled' : 'Waiting...';
+
+            // --- 逻辑变更结束 ---
+
             card.innerHTML = `
                 <div class="card-header">
                     <div class="node-title">
@@ -236,14 +264,14 @@
                         ${nodeName}
                     </div>
                     <div class="node-meta">
-                        <span id="time-${nodeName}">Waiting...</span>
+                        <span id="time-${nodeName}">${statusText}</span>
                     </div>
                 </div>
                 
                 ${noticeHtml}
 
                 <div id="content-${nodeName}">
-                    <div style="padding:20px; text-align:center; color:#999;">Connecting...</div>
+                    ${initContentHtml}
                 </div>
             `;
             container.appendChild(card);

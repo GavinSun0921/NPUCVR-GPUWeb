@@ -5,18 +5,18 @@
         "order": 1
     },
     "Server2": {
-        "status": "available",
-        "notice": "",
+        "status": "maintenance",
+        "notice": "未知 ssh 连接问题",
         "order": 2
     },
     "Server3": {
-        "status": "available",
-        "notice": "",
+        "status": "maintenance",
+        "notice": "未知 ssh 连接问题",
         "order": 3
     },
     "Server4": {
         "status": "disabled",
-        "notice": "网络故障",
+        "notice": "网络故障，服务器不可用，已下线",
         "order": 4
     },
     "Server5": {
