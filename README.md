@@ -7,19 +7,37 @@
 ## 📂 目录结构
 本项目采用统一结构，**服务端**和**节点机**使用同一份代码包即可。
 ```
-gpu-monitor/
-├── agent.py            # [通用] 采集脚本
-├── agent.sh            # [通用] 启动脚本
-├── index.html          # [服务端] 监控主页
-├── README.md           # [通用] 说明书
-├── config/             # [服务端] 配置文件
-│   ├── global.json
-│   └── nodes.json
-├── data/               # [服务端] 数据接收目录
-│   └── .gitkeep        # (占位文件)
-└── images/
-    ├──logo.png         # [服务端] Logo
-    └──web.png          # [通用] 预览效果
+./
+├── index.html                 # 前端主入口页面（已拆分 CSS + JS）
+├── index.bak                  # 旧版本 HTML 备份，可删除或归档
+├── README.md                  # 使用说明/部署文档
+│
+├── css/                       # 前端样式资源
+│   ├── variables.css          # 主题变量（颜色、字体、基础样式）
+│   ├── layout.css             # 页面布局（结构类样式）
+│   └── components.css         # UI 组件类样式（卡片、表格、进度条等）
+│
+├── js/                        # 前端逻辑模块（已按功能拆分）
+│   ├── config.js              # 加载配置（global.json / nodes.json）
+│   ├── layout.js              # 负责 DOM结构渲染 (renderLayout)
+│   ├── updater.js             # 动态内容更新（GPU数据/进度条渲染）
+│   └── main.js                # 应用入口，调度 refresh/interval/init逻辑
+│
+├── config/                    # JSON 配置文件
+│   ├── global.json            # 全局页面设置（标题、刷新周期、公共公告）
+│   └── nodes.json             # 集群节点定义、排序、状态、节点公告
+│
+├── images/                    # 静态图片资源
+│   ├── logo.png               # Logo（顶部 header显示）
+│   └── web.png                # 可作为 favicon 或备用图形
+│
+├── agent.py                   # GPU 信息采集脚本（Python版）
+├── agent.sh                   # GPU 信息采集定时执行脚本（shell触发）
+|
+└── data/                      # 动态运行生成的 GPU 状态 JSON 数据
+    ├── Server1.json
+    ├── Server2.json
+    └── ...
 ```
 
 ## 🚀 部署指南
@@ -28,16 +46,16 @@ gpu-monitor/
 
 适用于：汇总展示数据的机器 (需要安装 Nginx/Apache 或使用 Python HTTP)
 
-1. 上传代码 将 gpu-monitor 文件夹完整放置在 Web 服务器目录下（例如 /var/www/html/gpu-monitor）。
+1. 上传代码 将 NPUCVR-GPUWeb 文件夹完整放置在 Web 服务器目录下（例如 /var/www/html/gpu）。
 2. 设置权限 (关键步骤) 必须赋予 data 目录写入权限，否则节点无法上传数据。
 3. 配置节点 编辑 config/nodes.json，注册所有需要监控的节点名称（未注册的节点上传数据也不会显示）。
-4. 访问 打开浏览器访问：http://<Server-IP>/gpu-monitor/
+4. 访问 打开浏览器访问：http://<Server-IP>/gpu/
 
 ### 角色 B：作为节点机 (GPU Node)
 
 适用于：被监控的显卡服务器
 
-1. 下载代码 将 gpu-monitor 文件夹下载到节点机任意位置（例如 ~/gpu-monitor）。
+1. 下载代码 将 NPUCVR-GPUWeb 文件夹下载到节点机任意位置（例如 ~/NPUCVR-GPUWeb）。
 2. 安装依赖 需要 Python 3 和 psutil 库。
     ```python
     pip3 install psutil
@@ -56,13 +74,13 @@ gpu-monitor/
     chmod +x agent.sh
 
     # 2. 手动测试运行 (参数：节点名 远程用户 远程IP SSH端口)
-    ./agent.sh Server01 stuser 192.168.1.100 22
-    # 如果没报错，且服务端的 data/ 目录下出现了 Server01.json，即成功。
+    /home/user/NPUCVR-GPUWeb/agent.sh Server1 stuser 192.168.1.100 22
+    # 如果没报错，且服务端的 data/ 目录下出现了 Server1.json，即成功。
 
     # 3. 添加 Crontab 定时任务 (每分钟采集一次)
     crontab -e
     # 添加如下行：
-    * * * * * /path/to/gpu-monitor/agent.sh Server01 stuser 192.168.1.100 22 > /dev/null 2>&1
+    * * * * * /home/user/NPUCVR-GPUWeb/agent.sh Server1 stuser 192.168.1.100 22 > /dev/null 2>&1
     ```
 
 ## ⚙️ 配置文件说明

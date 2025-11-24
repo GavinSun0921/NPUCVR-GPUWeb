@@ -41,7 +41,7 @@
     },
     "Server8": {
         "status": "available",
-        "notice": "服务器 /home 存储告急，请各位用户及时清理自己的 /home 目录，当前的使用情况为：\nheyinrong(367G), lizhe(246G), guoying(96G), zhangtengyuan(82G), luzhicheng(81G), wangzhiwei(81G), heyuting(74G)",
+        "notice": "服务器 /home 存储告急，请各位用户及时清理自己的 /home 目录，当前的使用情况为：\nlizhe(246G), heyinrong(228G), guoying(96G), zhangtengyuan(82G), luzhicheng(81G), wangzhiwei(81G), heyuting(74G)",
         "order": 8
     },
     "Server10": {
