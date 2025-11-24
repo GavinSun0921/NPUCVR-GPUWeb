@@ -17,7 +17,7 @@ cd $SCRIPT_DIR
 
 # 1. 执行 Python 脚本生成 JSON
 # 确保 python 环境中有 psutil，如果没有可以用 venv 路径代替 python 命令
-python3 agent.py "$NODE_NAME"
+/usr/bin/python3 agent.py "$NODE_NAME"
 
 if [ $? -ne 0 ]; then
     echo "Error: JSON generation failed."
