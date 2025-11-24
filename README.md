@@ -2,7 +2,7 @@
 
 一个轻量级、无数据库、易扩展的实验室级 GPU 集群监控系统。 采用**节点主动推送 (Push)** 模式，前端实时解析 JSON 进行可视化展示。支持多行公告、ID 独立对齐、自定义 Logo 等特性。
 
-![](web.png)
+![](images/web.png)
 
 ## 📂 目录结构
 本项目采用统一结构，**服务端**和**节点机**使用同一份代码包即可。
@@ -11,13 +11,15 @@ gpu-monitor/
 ├── agent.py            # [通用] 采集脚本
 ├── agent.sh            # [通用] 启动脚本
 ├── index.html          # [服务端] 监控主页
-├── logo.png            # [服务端] Logo
 ├── README.md           # [通用] 说明书
 ├── config/             # [服务端] 配置文件
 │   ├── global.json
 │   └── nodes.json
-└── data/               # [服务端] 数据接收目录
-    └── .gitkeep        # (占位文件)
+├── data/               # [服务端] 数据接收目录
+│   └── .gitkeep        # (占位文件)
+└── images/
+    ├──logo.png         # [服务端] Logo
+    └──web.png          # [通用] 预览效果
 ```
 
 ## 🚀 部署指南

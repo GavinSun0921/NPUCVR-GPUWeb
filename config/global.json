@@ -3,13 +3,12 @@
     "announcement": "系统试运行中，服务器使用请阅读语雀使用手册：https://cvr-npu.yuque.com/npu-cvr/gpuserver/xvgskyheqz5vbczp。\n注意：小于24G显存的GPU节点已被排序至后方。\n有问题请联系管理员，邮箱：gavinsun0921@foxmail.com",
     "refresh_interval": 30,
     "gpu_name_map": {
-        "NVIDIA GeForce GTX 1080 Ti": "GTX 1080Ti (12G)",
         "Tesla V100-PCIE-32GB": "Tesla V100 (32G)",
+        "NVIDIA GeForce GTX 1080 Ti": "GTX 1080Ti (12G)",
         "NVIDIA GeForce RTX 2080 Ti": "RTX 2080Ti (12G)",
         "NVIDIA GeForce RTX 3080 Ti": "RTX 3080Ti (12G)",
         "NVIDIA GeForce RTX 3090": "RTX 3090 (24G)",
         "NVIDIA GeForce RTX 4090": "RTX 4090 (24G)",
-        "NVIDIA A100-SXM4-80GB": "A100 80G",
         "NVIDIA L40": "L40 (48G)",
         "NVIDIA RTX 5880 Ada Generation": "RTX 5880 Ada (48G)"
     }
