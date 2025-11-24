@@ -1,8 +1,83 @@
 {
+    "Server1": {
+        "status": "disabled",
+        "notice": "内存故障，服务器不可用，已下线",
+        "order": 1
+    },
+    "Server2": {
+        "status": "available",
+        "notice": "",
+        "order": 2
+    },
+    "Server3": {
+        "status": "available",
+        "notice": "",
+        "order": 3
+    },
+    "Server4": {
+        "status": "disabled",
+        "notice": "网络故障",
+        "order": 4
+    },
+    "Server5": {
+        "status": "available",
+        "notice": "",
+        "order": 5
+    },
+    "Server6": {
+        "status": "available",
+        "notice": "",
+        "order": 6
+    },
+    "Server7": {
+        "status": "available",
+        "notice": "",
+        "order": 7
+    },
+    "Server8": {
+        "status": "available",
+        "notice": "",
+        "order": 8
+    },
+    "Server9": {
+        "status": "available",
+        "notice": "",
+        "order": 9
+    },
     "Server10": {
         "status": "available",
-        "notice": "注意：\n1. 此节点正在跑长期训练任务。\n2. 请勿随意重启 docker 容器。\n3. 如有问题联系管理员。",
+        "notice": "",
         "order": 10
+    },
+    "Server11": {
+        "status": "available",
+        "notice": "",
+        "order": 11
+    },
+    "Server12": {
+        "status": "available",
+        "notice": "服务器存储故障灯触发，需注意数据安全。",
+        "order": 12
+    },
+    "Server13": {
+        "status": "available",
+        "notice": "",
+        "order": 13
+    },
+    "Server14": {
+        "status": "available",
+        "notice": "",
+        "order": 14
+    },
+    "Server16": {
+        "status": "available",
+        "notice": "",
+        "order": 16
+    },
+    "Server17": {
+        "status": "available",
+        "notice": "",
+        "order": 17
     },
     "Server18": {
         "status": "available",
@@ -10,7 +85,7 @@
         "order": 18
     },
     "Server19": {
-        "status": "maintenance",
+        "status": "available",
         "notice": "",
         "order": 19
     }

@@ -73,6 +73,13 @@ gpu-monitor/
     "title": "Lab GPU Center",      // 网页顶部大标题
     "announcement": "公告：\n1. 请注意显存占用", // 全局公告 (支持 \n 换行)
     "refresh_interval": 30          // 网页自动刷新间隔 (秒)
+    "gpu_name_map": {
+        "NVIDIA GeForce RTX 3090": "RTX 3090 (24G)", // 实际在网页中显示显卡的名称，可自定义
+        "NVIDIA GeForce RTX 4090": "RTX 4090 (24G)",
+        "NVIDIA A100-SXM4-80GB": "A100 80G",
+        "NVIDIA L40": "L40 (48G)",
+        "NVIDIA RTX 5880 Ada Generation": "RTX 5880 Ada (48G)"
+    }
 }
 ```
 

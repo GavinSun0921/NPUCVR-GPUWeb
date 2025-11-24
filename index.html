@@ -18,33 +18,32 @@
             --status-gray: #6c757d;
         }
 
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; color: var(--text-main); }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px 20px 150px 20px; color: var(--text-main); }
         
-        /* --- 头部样式 (修改版) --- */
+        /* --- 头部样式 --- */
         .header { margin-bottom: 25px; text-align: center; }
         
-        /* 新增：Logo和标题的水平容器 */
         .brand-wrapper {
             display: flex;
-            align-items: center; /* 垂直居中 */
-            justify-content: center; /* 水平居中 */
-            gap: 15px; /* 图片和文字的间距 */
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
             margin-bottom: 15px;
         }
 
         .site-logo { 
-            height: 60px; /* Logo 高度，可按需调整 */
+            height: 60px;
             display: block; 
         }
 
         .header h1 { 
             margin: 0; 
-            font-size: 34px; /* 字体加大 */
+            font-size: 34px;
             color: #2c3e50;
             line-height: 1.2;
         }
         
-        /* 全局公告样式 (支持多行) */
+        /* 全局公告样式 */
         .announcement { 
             background-color: #e2e3e5; 
             color: #383d41; 
@@ -88,7 +87,7 @@
         .status-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
         .node-meta { font-size: 13px; color: var(--text-sub); display: flex; align-items: center; gap: 15px; }
 
-        /* --- 节点公告区域 (永久展开，支持多行) --- */
+        /* --- 节点公告区域 --- */
         .node-notice-box {
             background-color: #fff3cd; 
             color: #856404;            
@@ -119,13 +118,23 @@
 
         /* 列宽控制 */
         .col-id { width: 50px; text-align: center; color: #999; font-weight: bold; }
-        .col-name { width: 200px; } 
+        .col-name { width: 180px; } /* 稍微调宽一点以容纳自定义长名 */
 
-        /* 进度条 */
-        .progress-wrapper { display: flex; align-items: center; gap: 8px; width: 100%; }
+        /* 进度条通用样式 */
+        .progress-wrapper { display: flex; align-items: center; gap: 10px; width: 100%; }
         .progress-bg { flex: 1; height: 16px; background: #e9ecef; border-radius: 4px; overflow: hidden; position: relative; }
         .progress-bar { height: 100%; transition: width 0.5s ease; }
-        .progress-text { font-size: 12px; min-width: 35px; text-align: right; }
+        /* --- 修改点：文字区域改为固定宽度，禁止压缩 --- */
+        .progress-text { 
+            font-size: 12px; 
+            text-align: right; 
+            flex-shrink: 0; /* 关键：禁止文字区域被压缩 */
+            color: #555;
+        }
+        /* 显存数值较长 (如: 24576MB / 100%)，给 110px */
+        .w-vram { width: 110px; } 
+        /* 利用率数值较短 (如: 100%)，给 40px */
+        .w-util { width: 40px; }
         
         /* 进程列表 */
         .process-list { font-size: 12px; color: #666; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -163,7 +172,7 @@
     </div>
 
 <script>
-    let config = { refresh_interval: 30 };
+    let config = { refresh_interval: 30, gpu_name_map: {} };
     let nodesConfig = {};
 
     function getColorClass(percent) {
@@ -180,7 +189,6 @@
             
             document.getElementById('global-title').textContent = config.title;
             
-            // 全局公告处理
             if (config.announcement && config.announcement.trim() !== "") {
                 const annEl = document.getElementById('global-announcement');
                 annEl.textContent = config.announcement;
@@ -216,7 +224,6 @@
             
             const statusColorClass = `status-${meta.status}`;
             
-            // 构建节点公告 HTML
             let noticeHtml = '';
             if (meta.notice && meta.notice.trim() !== "") {
                 noticeHtml = `<div class="node-notice-box">${meta.notice}</div>`;
@@ -268,10 +275,13 @@
         const timeSpan = document.getElementById(`time-${nodeName}`);
         const contentDiv = document.getElementById(`content-${nodeName}`);
         
+        // 1. 更新时间戳
         if (timeSpan) timeSpan.textContent = data.timestamp;
         
+        // 2. 准备系统资源数据
         const sys = data.system || {cpu_percent:0, ram_percent:0, ssd_percent:0};
         
+        // 3. 构建 HTML：系统资源栏 + 表格头
         let html = `
             <div class="system-resources">
                 <div class="res-item">
@@ -305,12 +315,21 @@
                     <tbody>
         `;
 
+        // 4. 构建 GPU 列表行
         if (data.gpus && data.gpus.length > 0) {
             data.gpus.forEach(gpu => {
                 const vramColor = getColorClass(gpu.vram_percent);
                 const utilColor = getColorClass(gpu.util_percent);
-                const displayName = gpu.name.replace("NVIDIA ", "");
                 
+                // --- 显卡名称映射逻辑 ---
+                let displayName = gpu.name;
+                if (config.gpu_name_map && config.gpu_name_map[gpu.name]) {
+                    displayName = config.gpu_name_map[gpu.name]; // 使用 global.json 配置的别名
+                } else {
+                    displayName = gpu.name.replace("NVIDIA ", ""); // 默认去掉前缀
+                }
+
+                // --- 进程列表格式化 ---
                 let processHtml = '<span style="color:#aaa">-</span>';
                 if (gpu.processes && gpu.processes.length > 0) {
                     processHtml = gpu.processes.map(p => 
@@ -327,7 +346,7 @@
                                 <div class="progress-bg">
                                     <div class="progress-bar ${vramColor}" style="width: ${gpu.vram_percent}%"></div>
                                 </div>
-                                <div class="progress-text">
+                                <div class="progress-text w-vram">
                                     ${gpu.vram_used_mb}MB <span style="color:#999">/ ${gpu.vram_percent}%</span>
                                 </div>
                             </div>
@@ -337,7 +356,7 @@
                                 <div class="progress-bg">
                                     <div class="progress-bar ${utilColor}" style="width: ${gpu.util_percent}%"></div>
                                 </div>
-                                <div class="progress-text">${gpu.util_percent}%</div>
+                                <div class="progress-text w-util">${gpu.util_percent}%</div>
                             </div>
                         </td>
                         <td><div class="process-list">${processHtml}</div></td>
@@ -349,6 +368,8 @@
         }
 
         html += `</tbody></table></div>`;
+        
+        // 5. 渲染进 DOM
         contentDiv.innerHTML = html;
     }
 
