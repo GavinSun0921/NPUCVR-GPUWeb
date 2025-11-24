@@ -20,11 +20,44 @@
 
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: var(--bg-color); margin: 0; padding: 20px; color: var(--text-main); }
         
-        /* --- 头部样式 (含Logo) --- */
-        .header { margin-bottom: 20px; text-align: center; }
-        .site-logo { height: 60px; margin-bottom: 10px; display: block; margin-left: auto; margin-right: auto; } /* Logo 样式 */
-        .header h1 { margin: 0 0 10px 0; font-size: 24px; }
-        .announcement { background-color: #e2e3e5; color: #383d41; padding: 10px; border-radius: 4px; display: inline-block; font-size: 14px; max-width: 800px; width: 100%; }
+        /* --- 头部样式 (修改版) --- */
+        .header { margin-bottom: 25px; text-align: center; }
+        
+        /* 新增：Logo和标题的水平容器 */
+        .brand-wrapper {
+            display: flex;
+            align-items: center; /* 垂直居中 */
+            justify-content: center; /* 水平居中 */
+            gap: 15px; /* 图片和文字的间距 */
+            margin-bottom: 15px;
+        }
+
+        .site-logo { 
+            height: 60px; /* Logo 高度，可按需调整 */
+            display: block; 
+        }
+
+        .header h1 { 
+            margin: 0; 
+            font-size: 34px; /* 字体加大 */
+            color: #2c3e50;
+            line-height: 1.2;
+        }
+        
+        /* 全局公告样式 (支持多行) */
+        .announcement { 
+            background-color: #e2e3e5; 
+            color: #383d41; 
+            padding: 15px; 
+            border-radius: 4px; 
+            display: inline-block; 
+            font-size: 14px; 
+            max-width: 900px; 
+            width: 100%; 
+            white-space: pre-wrap; 
+            text-align: left;
+            line-height: 1.6;
+        }
 
         /* 节点卡片容器 */
         .node-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; }
@@ -42,7 +75,7 @@
             flex-direction: column;
         }
 
-        /* --- 卡片头部与公告 --- */
+        /* --- 卡片头部 --- */
         .card-header {
             padding: 15px;
             background: #f8f9fa;
@@ -53,31 +86,19 @@
         }
         .node-title { font-size: 18px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
         .status-dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
-        
         .node-meta { font-size: 13px; color: var(--text-sub); display: flex; align-items: center; gap: 15px; }
 
-        /* 公告切换按钮 */
-        .notice-toggle-btn {
-            background: none;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 2px 8px;
-            font-size: 12px;
-            cursor: pointer;
-            color: #666;
-            display: flex; align-items: center; gap: 4px;
-            transition: all 0.2s;
+        /* --- 节点公告区域 (永久展开，支持多行) --- */
+        .node-notice-box {
+            background-color: #fff3cd; 
+            color: #856404;            
+            padding: 12px 20px;
+            border-bottom: 1px solid #ffeeba;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;     
+            border-top: 1px solid #e1e4e8; 
         }
-        .notice-toggle-btn:hover { background-color: #f0f0f0; color: #333; }
-        .notice-toggle-btn.has-notice { color: #d63384; border-color: #f8d7da; background-color: #f8d7da; }
-        
-        /* 折叠公告区域 */
-        .notice-drawer {
-            max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out;
-            background-color: #fff3cd; border-bottom: 0px solid #ffeeba;
-        }
-        .notice-drawer.open { max-height: 300px; border-bottom-width: 1px; }
-        .notice-content { padding: 15px; font-size: 13px; color: #856404; line-height: 1.6; white-space: pre-wrap; }
 
         /* --- 系统资源栏 --- */
         .system-resources {
@@ -89,16 +110,16 @@
         .mini-progress { flex: 1; height: 6px; background: #e9ecef; border-radius: 3px; overflow: hidden; }
         .mini-bar { height: 100%; border-radius: 3px; }
 
-        /* --- GPU 表格 (修改版: ID独立) --- */
+        /* --- GPU 表格 --- */
         .gpu-table-container { padding: 0; overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
         th { background: #f1f3f5; padding: 10px 15px; font-weight: 600; color: #495057; }
         td { padding: 8px 15px; border-bottom: 1px solid #eee; vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
 
-        /* ID 列专用样式 */
+        /* 列宽控制 */
         .col-id { width: 50px; text-align: center; color: #999; font-weight: bold; }
-        .col-name { width: 200px; } /* 固定名称列宽度 */
+        .col-name { width: 200px; } 
 
         /* 进度条 */
         .progress-wrapper { display: flex; align-items: center; gap: 8px; width: 100%; }
@@ -110,12 +131,11 @@
         .process-list { font-size: 12px; color: #666; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .process-tag { display: inline-block; background: #f0f0f0; padding: 2px 5px; border-radius: 3px; margin-right: 4px; }
 
-        /* 状态颜色 */
+        /* 状态/颜色类 */
         .status-available { background-color: var(--status-green); }
         .status-maintenance { background-color: var(--status-yellow); }
         .status-disabled { background-color: var(--status-gray); }
 
-        /* 阈值颜色 */
         .bg-green { background-color: var(--status-green); }
         .bg-yellow { background-color: var(--status-yellow); }
         .bg-orange { background-color: var(--status-orange); }
@@ -127,11 +147,14 @@
 <body>
 
 <div class="header">
-    <img src="logo.png" alt="Lab Logo" class="site-logo" onerror="this.style.display='none'">
+    <div class="brand-wrapper">
+        <img src="logo.png" alt="Lab Logo" class="site-logo" onerror="this.style.display='none'">
+        <h1 id="global-title">Loading...</h1>
+    </div>
     
-    <h1 id="global-title">Loading...</h1>
     <div id="global-announcement" class="announcement" style="display:none;"></div>
-    <div style="margin-top: 5px; font-size: 12px; color: #999;">
+    
+    <div style="margin-top: 10px; font-size: 12px; color: #999;">
         更新时间: <span id="last-updated">-</span> (每 <span id="refresh-rate">30</span>s 刷新)
     </div>
 </div>
@@ -156,11 +179,14 @@
             config = await globalRes.json();
             
             document.getElementById('global-title').textContent = config.title;
-            if (config.announcement) {
+            
+            // 全局公告处理
+            if (config.announcement && config.announcement.trim() !== "") {
                 const annEl = document.getElementById('global-announcement');
                 annEl.textContent = config.announcement;
                 annEl.style.display = 'inline-block';
             }
+            
             document.getElementById('refresh-rate').textContent = config.refresh_interval;
 
             const nodesRes = await fetch('config/nodes.json?t=' + Date.now());
@@ -190,11 +216,11 @@
             
             const statusColorClass = `status-${meta.status}`;
             
-            // 公告按钮逻辑
-            const hasNotice = meta.notice && meta.notice.trim() !== "";
-            const noticeBtnStyle = hasNotice ? 'has-notice' : '';
-            const btnText = hasNotice ? '📢 查看公告' : '无公告';
-            const btnDisabled = hasNotice ? '' : 'disabled style="opacity:0.5; cursor:default"';
+            // 构建节点公告 HTML
+            let noticeHtml = '';
+            if (meta.notice && meta.notice.trim() !== "") {
+                noticeHtml = `<div class="node-notice-box">${meta.notice}</div>`;
+            }
             
             card.innerHTML = `
                 <div class="card-header">
@@ -203,16 +229,11 @@
                         ${nodeName}
                     </div>
                     <div class="node-meta">
-                        <button class="notice-toggle-btn ${noticeBtnStyle}" ${btnDisabled} onclick="toggleNotice('${nodeName}')">
-                            ${btnText}
-                        </button>
                         <span id="time-${nodeName}">Waiting...</span>
                     </div>
                 </div>
                 
-                <div id="notice-drawer-${nodeName}" class="notice-drawer">
-                    <div class="notice-content">${meta.notice || ''}</div>
-                </div>
+                ${noticeHtml}
 
                 <div id="content-${nodeName}">
                     <div style="padding:20px; text-align:center; color:#999;">Connecting...</div>
@@ -220,11 +241,6 @@
             `;
             container.appendChild(card);
         });
-    }
-
-    function toggleNotice(nodeName) {
-        const drawer = document.getElementById(`notice-drawer-${nodeName}`);
-        if (drawer) drawer.classList.toggle('open');
     }
 
     async function refreshData() {
@@ -279,7 +295,8 @@
                 <table>
                     <thead>
                         <tr>
-                            <th class="col-id">ID</th> <th class="col-name">Name</th>
+                            <th class="col-id">ID</th>
+                            <th class="col-name">Name</th>
                             <th style="width: 25%">VRAM Usage</th>
                             <th style="width: 20%">Util %</th>
                             <th>Processes</th>
@@ -292,6 +309,7 @@
             data.gpus.forEach(gpu => {
                 const vramColor = getColorClass(gpu.vram_percent);
                 const utilColor = getColorClass(gpu.util_percent);
+                const displayName = gpu.name.replace("NVIDIA ", "");
                 
                 let processHtml = '<span style="color:#aaa">-</span>';
                 if (gpu.processes && gpu.processes.length > 0) {
@@ -300,14 +318,10 @@
                     ).join('');
                 }
 
-                // 处理显卡名称，去掉 "NVIDIA " 前缀让显示更简洁
-                const displayName = gpu.name.replace("NVIDIA ", "");
-
                 html += `
                     <tr>
-                        <td class="col-id">${gpu.id}</td> <td class="col-name">
-                            <div style="font-weight:bold;">${displayName}</div>
-                        </td>
+                        <td class="col-id">${gpu.id}</td>
+                        <td class="col-name"><div style="font-weight:bold;">${displayName}</div></td>
                         <td>
                             <div class="progress-wrapper">
                                 <div class="progress-bg">
@@ -326,9 +340,7 @@
                                 <div class="progress-text">${gpu.util_percent}%</div>
                             </div>
                         </td>
-                        <td>
-                            <div class="process-list">${processHtml}</div>
-                        </td>
+                        <td><div class="process-list">${processHtml}</div></td>
                     </tr>
                 `;
             });

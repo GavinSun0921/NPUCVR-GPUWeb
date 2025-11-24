@@ -1,5 +1,5 @@
 {
-    "title": "GPU 集群监控系统",
-    "announcement": "系统试运行中，请大家及时关注显存占用。",
+    "title": "NPU CVR Lab - GPU Status",
+    "announcement": "系统试运行中，请大家及时关注显存占用。\n这是一个全局公告",
     "refresh_interval": 30
 }

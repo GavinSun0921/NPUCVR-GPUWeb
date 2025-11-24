@@ -101,7 +101,7 @@ def get_system_info():
         return {
             "cpu_percent": round(psutil.cpu_percent(interval=1)),
             "ram_percent": round(psutil.virtual_memory().percent),
-            "ssd_percent": round(psutil.disk_usage('/').percent)
+            "ssd_percent": round(psutil.disk_usage('/home').percent)
         }
     except Exception as e:
         print(f"Error collecting System info: {e}")
