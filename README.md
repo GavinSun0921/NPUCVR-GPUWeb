@@ -49,7 +49,7 @@
 1. 上传代码 将 NPUCVR-GPUWeb 文件夹完整放置在 Web 服务器目录下（例如 /var/www/html/gpu）。
 2. 设置权限 (关键步骤) 必须赋予 data 目录写入权限，否则节点无法上传数据。
 3. 配置节点 编辑 config/nodes.json，注册所有需要监控的节点名称（未注册的节点上传数据也不会显示）。
-4. 访问 打开浏览器访问：http://<Server-IP>/gpu/
+4. 访问 打开浏览器访问：http://gpu.npu-cvr.cn/
 
 ### 角色 B：作为节点机 (GPU Node)
 
