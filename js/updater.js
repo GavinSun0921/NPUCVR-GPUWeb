@@ -5,13 +5,50 @@ function getColorClass(percent) {
     return 'bg-green';
 }
 
+function clampPercent(value) {
+    if (!Number.isFinite(value)) return 0;
+    return Math.max(0, Math.min(100, value));
+}
+
+function formatGb(value) {
+    if (!Number.isFinite(value)) return '-';
+    if (value >= 100) return `${Math.round(value)}G`;
+    return `${value.toFixed(1)}G`;
+}
+
 function updateNodeCard(nodeName, data) {
     const timeSpan = document.getElementById(`time-${nodeName}`);
     const contentDiv = document.getElementById(`content-${nodeName}`);
 
     if (timeSpan) timeSpan.textContent = data.timestamp;
 
-    const sys = data.system || {cpu_percent:0, ram_percent:0, ssd_percent:0};
+    const sys = data.system || {cpu_percent:0, ram_percent:0, ssd_percent:0, disks: []};
+    const disks = Array.isArray(sys.disks) ? sys.disks : [];
+    const fallbackPercent = Number(sys.ssd_percent);
+    const diskItems = disks.length ? disks : (
+        Number.isFinite(fallbackPercent) ? [{ mount: "/home", used_percent: fallbackPercent }] : []
+    );
+
+    const diskHtml = diskItems.length ? `
+        <div class="disk-resources">
+            ${diskItems.map(d => {
+                const percent = clampPercent(Number(d.used_percent ?? d.percent));
+                const label = d.mount ? `Disk ${d.mount}` : "Disk";
+                const sizeText = (Number.isFinite(d.used_gb) && Number.isFinite(d.total_gb))
+                    ? `${formatGb(d.used_gb)} / ${formatGb(d.total_gb)}`
+                    : `${percent}%`;
+                return `
+                    <div class="disk-item">
+                        <span class="disk-label">${label}</span>
+                        <div class="mini-progress">
+                            <div class="mini-bar ${getColorClass(percent)}" style="width:${percent}%"></div>
+                        </div>
+                        <span class="disk-text">${sizeText}</span>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    ` : '';
 
     let html = `
         <div class="system-resources">
@@ -23,11 +60,8 @@ function updateNodeCard(nodeName, data) {
                 <span>RAM: ${sys.ram_percent}%</span>
                 <div class="mini-progress"><div class="mini-bar ${getColorClass(sys.ram_percent)}" style="width:${sys.ram_percent}%"></div></div>
             </div>
-            <div class="res-item">
-                <span>SSD: ${sys.ssd_percent}%</span>
-                <div class="mini-progress"><div class="mini-bar ${getColorClass(sys.ssd_percent)}" style="width:${sys.ssd_percent}%"></div></div>
-            </div>
         </div>
+        ${diskHtml}
         
         <div class="gpu-table-container">
             <table>
@@ -92,6 +126,46 @@ function updateNodeCard(nodeName, data) {
     }
 
     html += `</tbody></table></div>`;
+
+    const usage = data.usage;
+    if (usage && Array.isArray(usage.users)) {
+        const days = usage.window_days || 7;
+        const maxUsers = config.usage_top_n || 6;
+        const users = usage.users.slice(0, maxUsers);
+        if (users.length > 0) {
+            html += `
+                <div class="usage-section">
+                    <div class="usage-title">用户用量统计（最近${days}天）</div>
+                    <table class="usage-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 30%">用户</th>
+                                <th style="width: 20%">活跃时长(h)</th>
+                                <th style="width: 25%">平均显存(合计%)</th>
+                                <th style="width: 25%">峰值显存(合计%)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${users.map(u => `
+                                <tr>
+                                    <td>${u.user}</td>
+                                    <td>${u.active_hours}</td>
+                                    <td>${u.avg_vram_percent}</td>
+                                    <td>${u.max_vram_percent}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="usage-section usage-empty">
+                    用户用量统计（最近${days}天）：暂无数据
+                </div>
+            `;
+        }
+    }
 
     contentDiv.innerHTML = html;
 }

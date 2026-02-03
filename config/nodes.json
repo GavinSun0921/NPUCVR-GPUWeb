@@ -6,22 +6,22 @@
     },
     "Server2": {
         "status": "maintenance",
-        "notice": "未知 ssh 连接问题",
+        "notice": "未知 ssh 连接问题，低可用度",
         "order": 52
     },
     "Server3": {
-        "status": "maintenance",
-        "notice": "未知 ssh 连接问题",
+        "status": "available",
+        "notice": "",
         "order": 3
     },
     "Server4": {
         "status": "disabled",
-        "notice": "网络故障，服务器不可用，已下线",
+        "notice": "未联网，服务器不可用，已下线",
         "order": 54
     },
     "Server5": {
         "status": "available",
-        "notice": "",
+        "notice": "该机器将于2026年3月10日进行改造测试，届时需要清除全部数据，且长时间下线服务，请用户注意。",
         "order": 55
     },
     "Server9": {
@@ -29,6 +29,8 @@
         "notice": "",
         "order": 59
     },
+
+
     "Server6": {
         "status": "available",
         "notice": "",
@@ -41,12 +43,12 @@
     },
     "Server8": {
         "status": "available",
-        "notice": "服务器 /home 存储告急，请各位用户及时清理自己的 /home 目录，当前的使用情况为：\nlizhe(246G), heyinrong(228G), guoying(96G), zhangtengyuan(82G), luzhicheng(81G), wangzhiwei(81G), heyuting(74G)",
+        "notice": "",
         "order": 8
     },
     "Server10": {
-        "status": "available",
-        "notice": "",
+        "status": "maintenance",
+        "notice": "已返厂维修，主板损坏。（2025/12/30）",
         "order": 10
     },
     "Server11": {
@@ -56,7 +58,7 @@
     },
     "Server12": {
         "status": "available",
-        "notice": "服务器存储故障灯触发，需注意数据安全。",
+        "notice": "",
         "order": 12
     },
     "Server13": {

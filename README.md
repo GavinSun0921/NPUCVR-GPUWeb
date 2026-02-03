@@ -119,3 +119,27 @@
 }
 ```
 
+### 3. 节点采集配置 (config/agent.json，可选)
+仅影响节点机的 `agent.py` 行为，用于磁盘展示与用户用量统计。若不提供，将使用默认值。
+```json
+{
+    "disk_mounts": ["/home", "/data"],
+    "history_days": 7,
+    "sample_interval_sec": 60,
+    "min_user_percent": 1,
+    "exclude_users": ["root"]
+}
+```
+字段说明：
+- `disk_mounts`：需要显示的磁盘挂载点列表（按顺序展示）。
+- `history_days`：用户用量统计窗口天数，设为 `0` 可关闭统计。
+- `sample_interval_sec`：采样间隔（建议与 crontab 频率一致）。
+- `min_user_percent`：过滤过小的显存占用，减少噪声。
+- `exclude_users`：不统计的用户列表。
+
+也可用环境变量覆盖：
+- `GPU_MONITOR_DISKS`（逗号分隔）
+- `GPU_MONITOR_HISTORY_DAYS`
+- `GPU_MONITOR_SAMPLE_INTERVAL_SEC`
+- `GPU_MONITOR_MIN_USER_PERCENT`
+- `GPU_MONITOR_EXCLUDE_USERS`（逗号分隔）
