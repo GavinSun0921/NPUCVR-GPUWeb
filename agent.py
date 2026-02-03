@@ -11,7 +11,7 @@ DEFAULT_AGENT_CONFIG = {
     "disk_mounts": ["/home"],
     "history_days": 7,
     "sample_interval_sec": 60,
-    "min_user_percent": 1,
+    "min_user_gpus": 1,
     "exclude_users": ["root"]
 }
 
@@ -43,9 +43,9 @@ def load_agent_config():
     if env_interval and env_interval.isdigit():
         cfg["sample_interval_sec"] = int(env_interval)
 
-    env_min_pct = os.getenv("GPU_MONITOR_MIN_USER_PERCENT")
-    if env_min_pct and env_min_pct.isdigit():
-        cfg["min_user_percent"] = int(env_min_pct)
+    env_min_gpus = os.getenv("GPU_MONITOR_MIN_USER_GPUS")
+    if env_min_gpus and env_min_gpus.isdigit():
+        cfg["min_user_gpus"] = int(env_min_gpus)
 
     env_exclude = os.getenv("GPU_MONITOR_EXCLUDE_USERS")
     if env_exclude:
@@ -199,20 +199,27 @@ def get_system_info(disk_mounts):
         print(f"Error collecting System info: {e}")
         return {"cpu_percent": 0, "ram_percent": 0, "ssd_percent": 0, "disks": []}
 
-def _collect_user_snapshot(gpus, min_user_percent, exclude_users):
+def _collect_user_snapshot(gpus, exclude_users):
     users = {}
+    active_gpus = 0
+    total_gpus = len(gpus)
+
     for gpu in gpus:
+        gpu_users = set()
         for proc in gpu.get("processes", []):
             user = proc.get("user") or "unknown"
             if user in exclude_users:
                 continue
-            percent = proc.get("ram_percent", 0)
-            if percent < min_user_percent:
-                continue
-            users[user] = users.get(user, 0) + percent
-    return users
+            gpu_users.add(user)
 
-def _load_history_lines(path, since_ts):
+        if gpu_users:
+            active_gpus += 1
+            for user in gpu_users:
+                users[user] = users.get(user, 0) + 1
+
+    return users, active_gpus, total_gpus
+
+def _load_history_lines(path, since_ts, metric=None):
     records = []
     if not os.path.exists(path):
         return records
@@ -225,6 +232,8 @@ def _load_history_lines(path, since_ts):
                 try:
                     rec = json.loads(line)
                 except Exception:
+                    continue
+                if metric and rec.get("metric") != metric:
                     continue
                 if rec.get("ts", 0) >= since_ts:
                     records.append(rec)
@@ -253,40 +262,56 @@ def build_usage_summary(node_name, gpus, cfg):
     window_sec = history_days * 24 * 3600
     since_ts = now_ts - window_sec
 
-    min_user_percent = int(cfg.get("min_user_percent", 1))
+    min_user_gpus = int(cfg.get("min_user_gpus", 1))
     exclude_users = set(cfg.get("exclude_users") or [])
     interval_sec = int(cfg.get("sample_interval_sec", 60))
 
-    records = _load_history_lines(history_path, since_ts)
+    records = _load_history_lines(history_path, since_ts, metric="gpu_hours")
 
-    snapshot_users = _collect_user_snapshot(gpus, min_user_percent, exclude_users)
+    snapshot_users, active_gpus, total_gpus = _collect_user_snapshot(gpus, exclude_users)
     record = {
         "ts": now_ts,
+        "metric": "gpu_hours",
         "interval_sec": interval_sec,
-        "users": snapshot_users
+        "users": snapshot_users,
+        "active_gpus": active_gpus,
+        "total_gpus": total_gpus
     }
     records.append(record)
     _write_history_lines(history_path, records)
 
     stats = {}
     total_samples = len(records)
+    idle_samples = 0
+    active_gpus_sum = 0
+    active_samples = 0
+    total_gpus_latest = total_gpus
     for rec in records:
         rec_users = rec.get("users", {})
         rec_interval = int(rec.get("interval_sec", interval_sec))
         ts = rec.get("ts", 0)
-        for user, vram_percent in rec_users.items():
-            if vram_percent < min_user_percent:
+        rec_active_gpus = int(rec.get("active_gpus", 0))
+        rec_total_gpus = int(rec.get("total_gpus", 0))
+        if rec_total_gpus > 0:
+            total_gpus_latest = rec_total_gpus
+            active_gpus_sum += rec_active_gpus
+            active_samples += 1
+            if rec_active_gpus == 0:
+                idle_samples += 1
+
+        for user, gpu_count in rec_users.items():
+            if gpu_count < min_user_gpus:
                 continue
             entry = stats.setdefault(user, {
                 "samples": 0,
-                "vram_sum": 0.0,
-                "vram_max": 0.0,
+                "gpu_seconds": 0.0,
+                "gpu_max": 0.0,
                 "active_seconds": 0,
                 "last_ts": 0
             })
             entry["samples"] += 1
-            entry["vram_sum"] += float(vram_percent)
-            entry["vram_max"] = max(entry["vram_max"], float(vram_percent))
+            entry["gpu_seconds"] += float(gpu_count) * rec_interval
+            entry["gpu_max"] = max(entry["gpu_max"], float(gpu_count))
             entry["active_seconds"] += rec_interval
             entry["last_ts"] = max(entry["last_ts"], int(ts))
 
@@ -294,22 +319,27 @@ def build_usage_summary(node_name, gpus, cfg):
     for user, entry in stats.items():
         if entry["samples"] == 0:
             continue
-        avg_vram = entry["vram_sum"] / entry["samples"]
         users.append({
             "user": user,
             "active_hours": round(entry["active_seconds"] / 3600, 1),
-            "avg_vram_percent": round(avg_vram, 1),
-            "max_vram_percent": round(entry["vram_max"], 1),
+            "gpu_hours": round(entry["gpu_seconds"] / 3600, 1),
+            "max_gpus": int(entry["gpu_max"]),
             "samples": entry["samples"],
             "last_seen": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(entry["last_ts"]))
         })
 
-    users.sort(key=lambda x: (x["active_hours"], x["avg_vram_percent"]), reverse=True)
+    users.sort(key=lambda x: (x["gpu_hours"], x["active_hours"]), reverse=True)
+
+    idle_rate = round((idle_samples / active_samples) * 100, 1) if active_samples else 0.0
+    avg_active_gpus = round((active_gpus_sum / active_samples), 1) if active_samples else 0.0
 
     return {
         "window_days": history_days,
         "total_samples": total_samples,
         "sample_interval_sec": interval_sec,
+        "total_gpus": total_gpus_latest,
+        "idle_rate_percent": idle_rate,
+        "avg_active_gpus": avg_active_gpus,
         "users": users
     }
 

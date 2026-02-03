@@ -132,26 +132,33 @@ function updateNodeCard(nodeName, data) {
         const days = usage.window_days || 7;
         const maxUsers = config.usage_top_n || 6;
         const users = usage.users.slice(0, maxUsers);
+        const idleRate = Number.isFinite(usage.idle_rate_percent) ? usage.idle_rate_percent : null;
+        const avgActive = Number.isFinite(usage.avg_active_gpus) ? usage.avg_active_gpus : null;
+        const totalGpus = Number.isFinite(usage.total_gpus) ? usage.total_gpus : null;
+        const summaryParts = [];
+        if (idleRate !== null) summaryParts.push(`空闲率 ${idleRate}%`);
+        if (avgActive !== null && totalGpus !== null && totalGpus > 0) {
+            summaryParts.push(`平均占用 ${avgActive}/${totalGpus} 卡`);
+        }
         if (users.length > 0) {
             html += `
                 <div class="usage-section">
                     <div class="usage-title">用户用量统计（最近${days}天）</div>
+                    ${summaryParts.length ? `<div class="usage-summary">${summaryParts.join(' · ')}</div>` : ''}
                     <table class="usage-table">
                         <thead>
                             <tr>
                                 <th style="width: 30%">用户</th>
-                                <th style="width: 20%">活跃时长(h)</th>
-                                <th style="width: 25%">平均显存(合计%)</th>
-                                <th style="width: 25%">峰值显存(合计%)</th>
+                                <th style="width: 25%">GPU小时</th>
+                                <th style="width: 25%">最大占用(卡)</th>
                             </tr>
                         </thead>
                         <tbody>
                             ${users.map(u => `
                                 <tr>
                                     <td>${u.user}</td>
-                                    <td>${u.active_hours}</td>
-                                    <td>${u.avg_vram_percent}</td>
-                                    <td>${u.max_vram_percent}</td>
+                                    <td>${Number.isFinite(u.gpu_hours) ? u.gpu_hours : '-'}</td>
+                                    <td>${Number.isFinite(u.max_gpus) ? u.max_gpus : '-'}</td>
                                 </tr>
                             `).join('')}
                         </tbody>
@@ -161,7 +168,9 @@ function updateNodeCard(nodeName, data) {
         } else {
             html += `
                 <div class="usage-section usage-empty">
-                    用户用量统计（最近${days}天）：暂无数据
+                    <div class="usage-title">用户用量统计（最近${days}天）</div>
+                    ${summaryParts.length ? `<div class="usage-summary">${summaryParts.join(' · ')}</div>` : ''}
+                    <div>暂无数据</div>
                 </div>
             `;
         }

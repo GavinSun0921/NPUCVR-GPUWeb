@@ -2,6 +2,6 @@
     "disk_mounts": ["/home"],
     "history_days": 7,
     "sample_interval_sec": 60,
-    "min_user_percent": 1,
+    "min_user_gpus": 1,
     "exclude_users": ["root"]
 }
