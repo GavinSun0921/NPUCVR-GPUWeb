@@ -1,3 +1,6 @@
 data
 Server*.json
 history
+
+config/nodes.json
+config/global.json
